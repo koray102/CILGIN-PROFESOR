@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Runtime.Serialization;
 using UnityEngine;
 
@@ -24,8 +25,12 @@ namespace GS
         [Header("Stats")]
         [SerializeField]
         float movementSpeed = 5;
+        [SerializeField]
+        float sprintSpeed = 7;
         [SerializeField] 
         float rotationSpeed = 10;
+
+        public bool isSprinting;
 
 
         void Start()
@@ -41,6 +46,7 @@ namespace GS
         public void Update()
         {
             float delta = Time.deltaTime;
+            isSprinting = inputHandler.b_Input;
 
             inputHandler.TickInput(delta);
 
@@ -76,18 +82,31 @@ namespace GS
 
         public void HandleMovement(float delta)
         {
+            if (inputHandler.rollFlag)
+                return;
+
             moveDirection = cameraObject.forward * inputHandler.vertical;
             moveDirection += cameraObject.right * inputHandler.horizontal;
             moveDirection.Normalize();
             moveDirection.y = 0;
 
             float speed = movementSpeed;
-            moveDirection *= speed;
+
+            if (inputHandler.sprintFlag)
+            {
+                speed = sprintSpeed;
+                isSprinting = true;
+                moveDirection *= speed;
+            }
+            else
+            {
+                moveDirection *= speed;
+            }
 
             Vector3 projectedVelocity = Vector3.ProjectOnPlane(moveDirection, normalVector);
             rigidbody.velocity = projectedVelocity;
 
-            animationHandler.UpdateAnimatorValues(inputHandler.moveAmount, 0);
+            animationHandler.UpdateAnimatorValues(inputHandler.moveAmount, 0, isSprinting);
 
             if (animationHandler.canRotate)
             {

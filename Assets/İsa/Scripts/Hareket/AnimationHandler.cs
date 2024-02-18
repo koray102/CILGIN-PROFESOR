@@ -13,6 +13,7 @@ namespace GS
         int vertical;
         int horizontal;
         public bool canRotate;
+        public bool isSprinting;
 
         public void Initialize()
         {
@@ -25,7 +26,7 @@ namespace GS
 
         }
 
-        public void UpdateAnimatorValues(float verticalMovement, float horizontalMovement)
+        public void UpdateAnimatorValues(float verticalMovement, float horizontalMovement, bool isSprinting)
         {
             #region Vertical
             float v = 0;
@@ -78,6 +79,12 @@ namespace GS
                 h = 0;
             }
             #endregion
+
+            if (isSprinting)
+            {
+                v = 2;
+                h = horizontalMovement;
+            }
 
             anim.SetFloat(vertical, v, 0.1f, Time.deltaTime);
             anim.SetFloat(horizontal, h, 0.1f, Time.deltaTime);
